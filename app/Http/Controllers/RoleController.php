@@ -46,6 +46,13 @@ class RoleController extends Controller
         $model->name=$request->name;
         $model->save();
 
+        $logs= new Log();
+        $logs->table_name='Role';
+        $logs->record_id=$model->id;
+        $logs->action='create';
+        $logs->created_by=Auth::id();
+        $logs->save();
+
         return response()->json(['data'=>$model]);
     }
 
@@ -90,7 +97,15 @@ class RoleController extends Controller
             $logs->action='delete';
             $logs->created_by=Auth::id();
             $logs->save();
+
+            $logs= new Log();
+            $logs->table_name='Role';
+            $logs->record_id=$id;
+            $logs->action='delete';
+            $logs->created_by=Auth::id();
+            $logs->save();
             return response()->json(['message'=>$roles->id.' has been deleted']);
+
         }
         else
         {
