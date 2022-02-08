@@ -18,15 +18,20 @@ class RoleController extends Controller
     }
     public function index(Request $request)
     {
+        $roleQuery = Role::query();
+
+        if($request->has('name')) {
+            $roleQuery->where('name', 'like', '%'.$request->get('name').'%');
+        }
+
         $page=$request->page;
         $limit=$request->limit;
         $offset = ($page - 1) * $limit;
-        $count=Role::count();
+        $count=count($roleQuery->get());
+        $roles=$roleQuery->limit($limit)->offset($offset)->get();
 
-        $result=Role::query()->limit($limit)->offset($offset)->get();
 
-
-        return response()->json(['data' => $result, 'total' => $count]);
+        return response()->json(['data' => $roles, 'total' => $count]);
     }
     public function store(Request $request)
     {

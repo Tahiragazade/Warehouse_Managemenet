@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Log;
 use App\Models\Product;
 use App\Models\WarehouseTransaction;
@@ -18,13 +19,36 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
+        $productQuery = Product::query()
+            ->select('products.name as product_name','categories.name as category_name','price','sale_price')
+            ->join('categories','products.category_id','=','categories.id');
+        if($request->has('product_name'))
+        {
+            $productQuery->where('products.name','like','%'.$request->get('product_name').'%');
+        }
+        if($request->has('category_name'))
+        {
+            $productQuery->where('categories.name','like','%'.$request->get('category_name').'%');
+        }
+        if($request->has('price'))
+        {
+            $productQuery->where('products.price','=',$request->get('price'));
+        }
+        if($request->has('sale_price'))
+        {
+            $productQuery->where('products.sale_price','=',$request->get('sale_price'));
+        }
+
+
         $page=$request->page;
         $limit=$request->limit;
         $offset = ($page - 1) * $limit;
-        $count=Product::count();
+        $count=count($productQuery->get());
+        $products=$productQuery->limit($limit)->offset($offset)->get();
 
-        $result=Product::query()->limit($limit)->offset($offset)->get();
-        return response()->json(['data' => $result, 'total' => $count]);
+
+        return response()->json(['data' => $products, 'total' => $count]);
+
     }
     public function store(Request $request)
     {

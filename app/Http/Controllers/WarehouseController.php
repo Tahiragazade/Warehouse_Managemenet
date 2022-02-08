@@ -17,13 +17,20 @@ class WarehouseController extends Controller
     }
     public function index(Request $request)
     {
+        $warehouseQuery = Warehouse::query();
+
+        if($request->has('name')) {
+            $warehouseQuery->where('name', 'like', '%'.$request->get('name').'%');
+        }
+
         $page=$request->page;
         $limit=$request->limit;
         $offset = ($page - 1) * $limit;
-        $count=Warehouse::count();
+        $count=count($warehouseQuery->get());
+        $warehouse=$warehouseQuery->limit($limit)->offset($offset)->get();
 
-        $result=Warehouse::query()->limit($limit)->offset($offset)->get();
-        return response()->json(['data' => $result, 'total' => $count]);
+
+        return response()->json(['data' => $warehouse, 'total' => $count]);
     }
     public function store(Request $request)
     {

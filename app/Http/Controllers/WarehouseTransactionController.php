@@ -7,6 +7,7 @@ use App\Models\WarehouseTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class WarehouseTransactionController extends Controller
@@ -17,13 +18,47 @@ class WarehouseTransactionController extends Controller
     }
     public function index(Request $request)
     {
+        $transactionQuery = Db::table('warehouses_transactions as wht')
+            ->select('wht.id as id',
+                'products.name as product_name',
+                'wht.quantity as quantity',
+                'to_user.name as user_name',
+                'fr_user.name as from_user',
+                'fr_wh.name as from_wh_name',
+                'dest_wh.name as dest_wh_name'
+            )
+
+            ->leftJoin('products','wht.product_id','=','products.id')
+            ->leftJoin('users as to_user','wht.to_id','=','to_user.id')
+            ->leftJoin('users as fr_user','wht.from_id','=','fr_user.id')
+            ->leftJoin('warehouses as dest_wh','wht.destination_wh_id','=','dest_wh.id')
+            ->leftJoin('warehouses as fr_wh','wht.from_wh_id','=','fr_wh.id');
+
+        if($request->has('product_name'))
+        {
+            $transactionQuery->where('products.name','like','%'.$request->get('product_name').'%');
+        }
+        if($request->has('quantity'))
+        {
+            $transactionQuery->where('wht.quantity','like','%'.$request->get('quantity').'%');
+        }
+        if($request->has('from_wh_name'))
+        {
+            $transactionQuery->where('fr_wh.name','like','%'.$request->get('from_wh_name').'%');
+        }
+        if($request->has('dest_wh_name'))
+        {
+            $transactionQuery->where('dest_wh.name','like','%'.$request->get('dest_wh_name').'%');
+        }
+
         $page=$request->page;
         $limit=$request->limit;
         $offset = ($page - 1) * $limit;
-        $count=WarehouseTransaction::count();
+        $count=count($transactionQuery->get());
+        $roles=$transactionQuery->limit($limit)->offset($offset)->get();
 
-        $result=WarehouseTransaction::query()->limit($limit)->offset($offset)->get();
-        return response()->json(['data' => $result, 'total' => $count]);
+
+        return response()->json(['data' => $roles, 'total' => $count]);
     }
     public function create(Request $request)
     {
@@ -127,7 +162,7 @@ class WarehouseTransactionController extends Controller
                 $logs= new Log();
                 $logs->table_name='WarehouseTransaction';
                 $logs->record_id=$model->id;
-                $logs->action='registr';
+                $logs->action='store';
                 $logs->created_by=Auth::id();
                 $logs->save();
                 return response()->json(['data' => $model]);
@@ -136,7 +171,7 @@ class WarehouseTransactionController extends Controller
                 return response()->json(['message' => 'You dont have Permission to do This'],403);
             }
         }
-        return response()->json(['message' => 'Something get wrong'],404);
+       // return response()->json(['message' => 'Something get wrong'],404);
     }
     public function registrToWarehouse(Request $request)
     {

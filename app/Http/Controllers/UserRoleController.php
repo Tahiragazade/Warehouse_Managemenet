@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Log;
+use App\Models\Role;
+use App\Models\User;
 use App\Models\UserRole;
-use App\Models\WarehouseRole;
-use App\Models\WarehouseTransaction;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -19,15 +20,32 @@ class UserRoleController extends Controller
 
     public function index(Request $request)
     {
+        $userRoleQuery = UserRole::query()
+            ->select('users.name as user_name','roles.name as role_name','warehouses.name as warehouse_name')
+            ->join('roles','user_roles.role_id','=','roles.id')
+            ->join('users','user_roles.user_id','=','users.id')
+            ->leftJoin('warehouses','user_roles.warehouse_id','=','warehouses.id');
+        if($request->has('name'))
+        {
+            $userRoleQuery->where('users.name','like','%'.$request->get('name').'%');
+        }
+        if($request->has('role'))
+        {
+            $userRoleQuery->where('roles.name','like','%'.$request->get('role').'%');
+        }
+        if($request->has('wh_name'))
+        {
+            $userRoleQuery->where('warehouses.name','like','%'.$request->get('wh_name').'%');
+        }
+
         $page=$request->page;
         $limit=$request->limit;
         $offset = ($page - 1) * $limit;
-        $count=UserRole::count();
+        $count=count($userRoleQuery->get());
+        $roles=$userRoleQuery->limit($limit)->offset($offset)->get();
 
-        $result=UserRole::query()->limit($limit)->offset($offset)->get();
 
-
-        return response()->json(['data' => $result, 'total' => $count]);
+        return response()->json(['data' => $roles, 'total' => $count]);
     }
     public function store(Request $request)
     {

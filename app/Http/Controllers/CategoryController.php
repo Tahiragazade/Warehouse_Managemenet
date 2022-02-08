@@ -18,19 +18,26 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
+        $categoryQuery = Category::query();
 
+        if($request->has('name')) {
+            $categoryQuery->where('name', 'like', '%'.$request->get('name').'%');
+        }
+        if($request->has('parent_id')) {
+            $categoryQuery->where('parent_id', '=', $request->get('parent_id'));
+        }
         $page=$request->page;
         $limit=$request->limit;
         $offset = ($page - 1) * $limit;
-        $count=Category::count();
+        $count=count($categoryQuery->get());
+        $categories=$categoryQuery->limit($limit)->offset($offset)->get();
 
-        $results=Category::query()->limit($limit)->offset($offset)->get();
-        foreach ($results as $result) {
-            if (!empty($result->parent_id)) {
-                $result->parent_id=Category::find($result->parent_id)->name;
+        foreach ($categories as $category) {
+            if (!empty($category->parent_id)) {
+                $category->parent_id=Category::find($category->parent_id)->name;
+            }
         }
-        }
-        return response()->json(['data' => $results, 'total' => $count]);
+        return response()->json(['data' => $categories, 'total' => $count]);
     }
     public function store(Request $request)
     {
@@ -132,4 +139,4 @@ class CategoryController extends Controller
             ->get();
         return response()->json(['data'=>$model]);
     }
-}
+    }
