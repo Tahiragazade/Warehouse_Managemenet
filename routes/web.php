@@ -38,7 +38,7 @@ $router->group(['middleware' => 'cors'], function () use ($router) {
             $router->put('/warehouse', 'WarehouseController@update');
             $router->get('/warehouse', 'WarehouseController@index');
             $router->get('/warehouse/{id}', 'WarehouseController@single');
-            $router->delete('/warehouse', 'WarehouseController@delete');
+            $router->delete('/warehouse/{id}', 'WarehouseController@delete');
             $router->get('/transaction', 'WarehouseTransactionController@index');
             //category routes
             $router->post('/category', 'CategoryController@store');

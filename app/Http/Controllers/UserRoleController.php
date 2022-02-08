@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Log;
 use App\Models\UserRole;
 use App\Models\WarehouseRole;
 use App\Models\WarehouseTransaction;
@@ -50,6 +51,12 @@ class UserRoleController extends Controller
         $model->created_by=Auth::id();
         $model->save();
 
+        $logs= new Log();
+        $logs->table_name='userRole';
+        $logs->record_id=$model->id;
+        $logs->action='create';
+        $logs->created_by=Auth::id();
+        $logs->save();
         return response()->json(['data'=>$model]);
     }
 
@@ -73,6 +80,12 @@ class UserRoleController extends Controller
         $model->warehouse_id=$request->warehouse_id;
         $model->save();
 
+        $logs= new Log();
+        $logs->table_name='UserRole';
+        $logs->record_id=$request->id;
+        $logs->action='update';
+        $logs->created_by=Auth::id();
+        $logs->save();
         return response()->json(['data'=>$model]);
     }
     public function delete($id)
@@ -81,6 +94,13 @@ class UserRoleController extends Controller
         if( !empty($roles))
         {
             $roles->delete();
+
+            $logs= new Log();
+            $logs->table_name='UserRole';
+            $logs->record_id=$id;
+            $logs->action='delete';
+            $logs->created_by=Auth::id();
+            $logs->save();
             return response()->json(['message'=>$roles->id.' has been deleted']);
         }
         else

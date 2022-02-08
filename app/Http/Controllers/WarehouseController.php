@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Log;
 use App\Models\Warehouse;
 use App\Models\WarehouseTransaction;
 use Illuminate\Http\Request;
@@ -44,6 +45,12 @@ class WarehouseController extends Controller
         $model->created_by=Auth::id();
         $model->save();
 
+        $logs= new Log();
+        $logs->table_name='Warehouse';
+        $logs->record_id=$model->id;
+        $logs->action='create';
+        $logs->created_by=Auth::id();
+        $logs->save();
         return response()->json(['data'=>$model]);
     }
     public function update(Request $request)
@@ -65,20 +72,33 @@ class WarehouseController extends Controller
         $model->types=$request->types;
         $model->save();
 
+        $logs= new Log();
+        $logs->table_name='Warehouse';
+        $logs->record_id=$request->id;
+        $logs->action='update';
+        $logs->created_by=Auth::id();
+        $logs->save();
+
         return response()->json(['data'=>$model]);
     }
-    public function delete(Request $request)
+    public function delete($id)
     {
         $transactions=WarehouseTransaction::query()
             ->select(['*'
             ])
-            ->where('from_wh_id', $request->id)
-            ->OrWhere('destination_wh_id',$request->id)
+            ->where('from_wh_id', $id)
+            ->OrWhere('destination_wh_id',$id)
             ->get();
-        $warehouse=Warehouse::find($request->id);
+        $warehouse=Warehouse::find($id);
         if(count($transactions)==0 && !empty($warehouse))
         {
             $warehouse->delete();
+            $logs= new Log();
+            $logs->table_name='Warehouse';
+            $logs->record_id=$id;
+            $logs->action='delete';
+            $logs->created_by=Auth::id();
+            $logs->save();
             return response()->json(['message'=>$warehouse->name.' has been deleted']);
         }
         elseif(count($transactions)>0)
@@ -87,7 +107,7 @@ class WarehouseController extends Controller
         }
         else
         {
-            return response()->json(['message'=>'id number '.$request->id.' not found'],404);
+            return response()->json(['message'=>'id number '.$id.' not found'],404);
         }
     }
     public function single($id)

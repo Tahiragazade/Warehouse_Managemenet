@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Log;
 use App\Models\WarehouseTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -63,6 +64,12 @@ class WarehouseTransactionController extends Controller
                     $model->status = $request->status;
                     $model->save();
 
+                    $logs= new Log();
+                    $logs->table_name='WarehouseTransaction';
+                    $logs->record_id=$model->id;
+                    $logs->action='create';
+                    $logs->created_by=Auth::id();
+                    $logs->save();
 
                     return response()->json(['data' => $model]);
                 } else {
@@ -70,9 +77,11 @@ class WarehouseTransactionController extends Controller
                 }
             }
             else {
-                return response()->json(['message' => 'You dont have Permission to do This']);
+                return response()->json(['message' => 'You dont have Permission to do This'],403);
             }
         }
+
+        return response()->json(['message' => 'Something get wrong'],404);
 
     }
     public function store(Request $request)
@@ -115,13 +124,19 @@ class WarehouseTransactionController extends Controller
                 $transaction->updated_at = Carbon::now();
                 $transaction->save();
 
+                $logs= new Log();
+                $logs->table_name='WarehouseTransaction';
+                $logs->record_id=$model->id;
+                $logs->action='registr';
+                $logs->created_by=Auth::id();
+                $logs->save();
                 return response()->json(['data' => $model]);
 
             } else {
                 return response()->json(['message' => 'You dont have Permission to do This'],403);
             }
         }
-
+        return response()->json(['message' => 'Something get wrong'],404);
     }
     public function registrToWarehouse(Request $request)
     {
@@ -169,6 +184,13 @@ class WarehouseTransactionController extends Controller
                 $transaction->save();
                 $model->save();
 
+                $logs= new Log();
+                $logs->table_name='WarehouseTransaction';
+                $logs->record_id=$model->id;
+                $logs->action='registr';
+                $logs->created_by=Auth::id();
+                $logs->save();
+
                 return response()->json(['data' => $model]);
 
             }
@@ -177,6 +199,7 @@ class WarehouseTransactionController extends Controller
             }
 
         }
+        return response()->json(['message' => 'Something get wrong'],404);
     }
 
     public function checkStore($store_id)
