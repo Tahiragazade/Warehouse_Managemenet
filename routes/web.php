@@ -71,6 +71,7 @@ $router->group(['middleware' => 'cors'], function () use ($router) {
             $router->get('users/{id}', 'UserController@singleUser');
             $router->get('users', 'UserController@allUsers');
             $router->get('dropdown', 'UserController@dropdown');
+            $router->get('logs', 'LogController@index');
 
 
         });

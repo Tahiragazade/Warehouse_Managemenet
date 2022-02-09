@@ -17,27 +17,35 @@ class LogController extends Controller
     public function index(Request $request)
     {
 
+        $logQuery = Log::query()
+            ->select('logs.table_name as table','record_id as record','action','users.name')
+            ->join('users','logs.created_by','=','users.id');
+        if($request->has('table_name'))
+        {
+            $logQuery->where('logs.table_name','like','%'.$request->get('table_name').'%');
+        }
+        if($request->has('user_name'))
+        {
+            $logQuery->where('users.name','like','%'.$request->get('user_name').'%');
+        }
+        if($request->has('action'))
+        {
+            $logQuery->where('logs.action','like','%'.$request->get('action').'%');
+        }
+        if($request->has('record_id'))
+        {
+            $logQuery->where('logs.record_id','=',$request->get('record_id'));
+        }
+
         $page=$request->page;
         $limit=$request->limit;
         $offset = ($page - 1) * $limit;
-        $count=Category::count();
+        $count=count($logQuery->get());
+        $logs=$logQuery->limit($limit)->offset($offset)->get();
 
-        $results=Category::query()->limit($limit)->offset($offset)->get();
-        foreach ($results as $result) {
-            if (!empty($result->parent_id)) {
-                $result->parent_id=Category::find($result->parent_id)->name;
-        }
-        }
-        return response()->json(['data' => $results, 'total' => $count]);
+
+        return response()->json(['data' => $logs, 'total' => $count]);
     }
 
-    public function single($id)
-    {
 
-        $model=Category::query()
-            ->select('*')
-            ->where('id', $id)
-            ->get();
-        return response()->json(['data'=>$model]);
-    }
 }

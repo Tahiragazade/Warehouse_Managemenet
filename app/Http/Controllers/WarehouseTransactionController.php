@@ -51,8 +51,8 @@ class WarehouseTransactionController extends Controller
             $transactionQuery->where('dest_wh.name','like','%'.$request->get('dest_wh_name').'%');
         }
 
-        $page=$request->page;
-        $limit=$request->limit;
+        $page=$request->get('page');
+        $limit=$request->get('limit');
         $offset = ($page - 1) * $limit;
         $count=count($transactionQuery->get());
         $roles=$transactionQuery->limit($limit)->offset($offset)->get();

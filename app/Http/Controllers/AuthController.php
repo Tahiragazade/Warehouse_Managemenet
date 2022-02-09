@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\UserRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use  App\Models\User;
@@ -37,13 +38,30 @@ class AuthController extends Controller
             $user->created_by=Auth::id();
 
             $user->save();
-
+            //create logs
             $logs= new Log();
             $logs->table_name='users';
             $logs->record_id=$user->id;
             $logs->action='create';
             $logs->created_by=Auth::id();
             $logs->save();
+
+            //add roles to use while creating user
+            $userRole= new UserRole();
+            $userRole->user_id=$user->id;
+            $userRole->role_id=$request->input('role_id');
+            $userRole->created_by=Auth::id();
+            $userRole->warehouse_id=$request->input('warehouse_id');
+            $userRole->save();
+
+            //create logs
+            $logs_1= new Log();
+            $logs_1->table_name='roles';
+            $logs_1->record_id=$userRole->id;
+            $logs_1->action='create';
+            $logs_1->created_by=Auth::id();
+            $logs_1->save();
+
             //return successful response
             return response()->json(['user' => $user, 'message' => 'CREATED'], 201);
 
