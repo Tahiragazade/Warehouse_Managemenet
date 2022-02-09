@@ -81,7 +81,10 @@ class WarehouseTransactionController extends Controller
         $quantity=$request->quantity;
         $product_id=$request->product_id;
         $to_wh_id=$request->destination_wh_id;
-
+        if($from_wh_id==$to_wh_id)
+        {
+            return response()->json(['message' => 'Eyni anbardan mal göndərə bilməzsiniz'],409);
+        }
         $quantityChecker=checkProductCount($from_wh_id,$product_id );
 
         if($request->status==1 ) {
