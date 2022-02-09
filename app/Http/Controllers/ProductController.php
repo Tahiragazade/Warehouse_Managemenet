@@ -146,8 +146,7 @@ public function delete($id)
     public function single(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id'=>['integer'],
-            'name'=>['string']
+            'id'=>['integer']
         ]);
 
         if ($validator->fails())
@@ -162,6 +161,12 @@ public function delete($id)
             ->Orwhere('name',$request->name)
             ->get();
         return response()->json(['data'=>$model]);
+    }
+    public function dropdown(){
+        $datas=Product::all();
+        $dropdown=GenerateDropdownTree($datas);
+        return response()->json(['data'=>$dropdown]);
+
     }
 }
 

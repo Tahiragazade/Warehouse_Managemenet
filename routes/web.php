@@ -27,6 +27,8 @@ $router->group(['middleware' => 'cors'], function () use ($router) {
             $router->get('profile', 'UserController@profile');
             $router->get('logout', 'AuthController@logout');
             $router->get('/category/dropdown', 'CategoryController@getCategoryDropdown');
+            $router->get('/warehouse/dropdown', 'WarehouseController@dropdown');
+            $router->get('/product/dropdown', 'ProductController@dropdown');
 
         });
 
@@ -56,6 +58,7 @@ $router->group(['middleware' => 'cors'], function () use ($router) {
             $router->post('/roles', 'RoleController@store');
             $router->get('/roles', 'RoleController@index');
             $router->put('/roles', 'RoleController@update');
+            $router->get('/roles/dropdown', 'RoleController@dropdown');
             $router->get('/roles/{id}', 'RoleController@single');
             $router->delete('/roles/{id}', 'RoleController@delete');
             //user Roles
@@ -67,6 +70,7 @@ $router->group(['middleware' => 'cors'], function () use ($router) {
             $router->post('register', 'AuthController@register');
             $router->get('users/{id}', 'UserController@singleUser');
             $router->get('users', 'UserController@allUsers');
+            $router->get('dropdown', 'UserController@dropdown');
 
 
         });

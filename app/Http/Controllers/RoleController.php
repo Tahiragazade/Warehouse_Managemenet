@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Log;
 use App\Models\Role;
-use App\Models\WarehouseRole;
-use App\Models\WarehouseTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -122,5 +120,11 @@ class RoleController extends Controller
         $model=Role::find($id);
 
         return response()->json(['data'=>$model]);
+    }
+    public function dropdown(){
+        $datas=Role::all();
+        $dropdown=GenerateDropdownTree($datas);
+        return response()->json(['data'=>$dropdown]);
+
     }
 }

@@ -126,4 +126,10 @@ class WarehouseController extends Controller
             ->get();
         return response()->json(['data'=>$model]);
     }
+    public function dropdown(){
+        $datas=Warehouse::all();
+        $dropdown=GenerateDropdownTree($datas);
+        return response()->json(['data'=>$dropdown]);
+
+    }
 }

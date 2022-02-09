@@ -207,3 +207,17 @@ function isSameUser($user_id)
     }
 }
 
+function GenerateDropdownTree($datas) {
+    $tree = [];
+    foreach ($datas as $data) {
+
+            $tree[] = array(
+                'key' => $data->id,
+                'value' => $data->id,
+                'title' => $data->name
+            );
+
+    }
+
+    return $tree;
+}

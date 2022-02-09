@@ -56,5 +56,11 @@ class UserController extends Controller
         }
 
     }
+    public function dropdown(){
+        $datas=User::all();
+        $dropdown=GenerateDropdownTree($datas);
+        return response()->json(['data'=>$dropdown]);
+
+    }
 
 }
