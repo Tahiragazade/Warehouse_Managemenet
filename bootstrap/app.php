@@ -72,17 +72,15 @@ $app->configure('app');
 |
 */
 
-// $app->middleware([
-//     App\Http\Middleware\ExampleMiddleware::class
-// ]);
-
+ $app->middleware([
+     \App\Http\Middleware\Cors::class
+ ]);
  $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class, //commenti sildim
      'admin'=>App\Http\Middleware\AdminMiddleware::class,
      'from'=>App\Http\Middleware\FromWarehouseMiddleware::class,
      'to'=>App\Http\Middleware\ToWarehouseMiddleware::class,
      'stores'=>App\Http\Middleware\StorekeeperMiddleware::class,
-     'cors'=>App\Http\Middleware\Cors::class,
  ]);
 
 /*

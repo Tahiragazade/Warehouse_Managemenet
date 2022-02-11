@@ -13,6 +13,7 @@ class VerifyCsrfToken extends Middleware
      */
      protected $except = [
         //
+         '*',
         'http://127.0.0.1:8000/warehouse/store', //This is the url that I dont want Csrf for postman.
         'http://127.0.0.1:8000/transaction/store', //This is the url that I dont want Csrf for postman.
     ];

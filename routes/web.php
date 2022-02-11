@@ -3,6 +3,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\WarehouseTransactionController;
 use App\Http\Middleware\AdminMiddleware;
+use Illuminate\Support\Facades\Artisan;
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
@@ -16,12 +17,8 @@ use App\Http\Middleware\AdminMiddleware;
 | and give it the Closure to call when that URI is requested.
 |
 */
-
-$router->get('/', function () use ($router) {
-    return $router->app->version();
-});
-$router->group(['middleware' => 'cors'], function () use ($router) {
-    $router->group(['prefix' => 'api'], function () use ($router) {
+    $router->options('/{any:.*}', function() { return response(['status' => 'success']); });
+    $router->group(['prefix' => 'api', 'middleware' => 'cors'], function () use ($router) {
 
         $router->group(['middleware' => 'auth'], function () use ($router) {
             $router->get('profile', 'UserController@profile');
@@ -101,6 +98,4 @@ $router->group(['middleware' => 'cors'], function () use ($router) {
 
     });
 
-
-});
 
