@@ -36,13 +36,17 @@ class LogController extends Controller
         {
             $logQuery->where('logs.record_id','=',$request->get('record_id'));
         }
-
-        $page=$request->page;
-        $limit=$request->limit;
-        $offset = ($page - 1) * $limit;
-        $count=count($logQuery->get());
-        $logs=$logQuery->limit($limit)->offset($offset)->get();
-
+        if($request->has('limit')&&$request->has('page')) {
+            $page = $request->page;
+            $limit = $request->limit;
+            $offset = ($page - 1) * $limit;
+            $count = count($logQuery->get());
+            $logs = $logQuery->limit($limit)->offset($offset)->get();
+        }
+        else{
+            $count = count($logQuery->get());
+            $logs = $logQuery->get();
+        }
 
         return response()->json(['data' => $logs, 'total' => $count]);
     }

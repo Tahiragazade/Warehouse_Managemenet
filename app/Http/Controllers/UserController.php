@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use  App\Models\User;
 
@@ -32,9 +33,34 @@ class UserController extends Controller
      *
      * @return Response
      */
-    public function allUsers()
+    public function allUsers(Request $request)
     {
-        return response()->json(['users' =>  User::all()], 200);
+        $userQuery = User::query();
+
+        if($request->has('name')) {
+            $userQuery->where('name', 'like', '%'.$request->get('name').'%');
+        }
+        if($request->has('name')) {
+            $userQuery->where('name', 'like', '%'.$request->get('name').'%');
+        }
+        if($request->has('email')) {
+            $userQuery->where('email', 'like', '%'.$request->get('email').'%');
+        }
+        if($request->has('limit')&&$request->has('page')) {
+            $page = $request->page;
+            $limit = $request->limit;
+            $offset = ($page - 1) * $limit;
+            $count = count($userQuery->get());
+            $users = $userQuery->limit($limit)->offset($offset)->get();
+        }
+        else{
+            $count = count($userQuery->get());
+            $users = $userQuery->get();
+
+        }
+
+        return response()->json(['data' => $users, 'total' => $count]);
+
     }
 
     /**

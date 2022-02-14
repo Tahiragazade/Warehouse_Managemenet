@@ -39,16 +39,19 @@ class ProductController extends Controller
             $productQuery->where('products.sale_price','=',$request->get('sale_price'));
         }
 
-
-        $page=$request->page;
-        $limit=$request->limit;
-        $offset = ($page - 1) * $limit;
-        $count=count($productQuery->get());
-        $products=$productQuery->limit($limit)->offset($offset)->get();
-
-
+        if($request->has('limit')&&$request->has('page')) {
+            $page = $request->page;
+            $limit = $request->limit;
+            $offset = ($page - 1) * $limit;
+            $count = count($productQuery->get());
+            $products = $productQuery->limit($limit)->offset($offset)->get();
+        }
+        else
+        {
+            $count = count($productQuery->get());
+            $products=$productQuery->get();
+        }
         return response()->json(['data' => $products, 'total' => $count]);
-
     }
     public function store(Request $request)
     {

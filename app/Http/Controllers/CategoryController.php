@@ -26,12 +26,18 @@ class CategoryController extends Controller
         if($request->has('parent_id')) {
             $categoryQuery->where('parent_id', '=', $request->get('parent_id'));
         }
-        $page=$request->page;
-        $limit=$request->limit;
-        $offset = ($page - 1) * $limit;
-        $count=count($categoryQuery->get());
-        $categories=$categoryQuery->limit($limit)->offset($offset)->get();
-
+        if($request->has('limit')&&$request->has('page')) {
+            $page = $request->page;
+            $limit = $request->limit;
+            $offset = ($page - 1) * $limit;
+            $count = count($categoryQuery->get());
+            $categories = $categoryQuery->limit($limit)->offset($offset)->get();
+        }
+        else
+        {
+            $count = count($categoryQuery->get());
+            $categories = $categoryQuery->get();
+        }
         foreach ($categories as $category) {
             if (!empty($category->parent_id)) {
                 $category->parent_id=Category::find($category->parent_id)->name;

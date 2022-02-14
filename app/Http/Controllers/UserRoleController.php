@@ -37,13 +37,18 @@ class UserRoleController extends Controller
         {
             $userRoleQuery->where('warehouses.name','like','%'.$request->get('wh_name').'%');
         }
-
-        $page=$request->page;
-        $limit=$request->limit;
-        $offset = ($page - 1) * $limit;
-        $count=count($userRoleQuery->get());
-        $roles=$userRoleQuery->limit($limit)->offset($offset)->get();
-
+        if($request->has('limit')&&$request->has('page')) {
+            $page = $request->page;
+            $limit = $request->limit;
+            $offset = ($page - 1) * $limit;
+            $count = count($userRoleQuery->get());
+            $roles = $userRoleQuery->limit($limit)->offset($offset)->get();
+        }
+        else
+        {
+            $count = count($userRoleQuery->get());
+            $roles = $userRoleQuery->get();
+        }
 
         return response()->json(['data' => $roles, 'total' => $count]);
     }

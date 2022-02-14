@@ -22,13 +22,18 @@ class WarehouseController extends Controller
         if($request->has('name')) {
             $warehouseQuery->where('name', 'like', '%'.$request->get('name').'%');
         }
+        if($request->has('limit')&&$request->has('page')) {
+            $page = $request->page;
+            $limit = $request->limit;
+            $offset = ($page - 1) * $limit;
+            $count = count($warehouseQuery->get());
+            $warehouse = $warehouseQuery->limit($limit)->offset($offset)->get();
+        }
+        else{
+            $count = count($warehouseQuery->get());
+            $warehouse = $warehouseQuery->get();
 
-        $page=$request->page;
-        $limit=$request->limit;
-        $offset = ($page - 1) * $limit;
-        $count=count($warehouseQuery->get());
-        $warehouse=$warehouseQuery->limit($limit)->offset($offset)->get();
-
+        }
 
         return response()->json(['data' => $warehouse, 'total' => $count]);
     }

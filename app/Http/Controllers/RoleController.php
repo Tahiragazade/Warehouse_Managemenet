@@ -21,13 +21,18 @@ class RoleController extends Controller
         if($request->has('name')) {
             $roleQuery->where('name', 'like', '%'.$request->get('name').'%');
         }
+        if($request->has('limit')&&$request->has('page')) {
+            $page = $request->page;
+            $limit = $request->limit;
+            $offset = ($page - 1) * $limit;
+            $count = count($roleQuery->get());
+            $roles = $roleQuery->limit($limit)->offset($offset)->get();
+        }
+        else{
+            $count = count($roleQuery->get());
+            $roles = $roleQuery->get();
 
-        $page=$request->page;
-        $limit=$request->limit;
-        $offset = ($page - 1) * $limit;
-        $count=count($roleQuery->get());
-        $roles=$roleQuery->limit($limit)->offset($offset)->get();
-
+        }
 
         return response()->json(['data' => $roles, 'total' => $count]);
     }
