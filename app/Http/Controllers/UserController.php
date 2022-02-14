@@ -35,13 +35,14 @@ class UserController extends Controller
      */
     public function allUsers(Request $request)
     {
-        $userQuery = User::query();
+        $userQuery = User::query()
+            ->select('users.id as user_id','users.name as user_name','users.email as user_email','roles.name as role_name')
+            ->leftJoin('user_roles','users.id','=','user_roles.user_id')
+            ->leftJoin('roles','user_roles.role_id','=','roles.id');
+
 
         if($request->has('name')) {
-            $userQuery->where('name', 'like', '%'.$request->get('name').'%');
-        }
-        if($request->has('name')) {
-            $userQuery->where('name', 'like', '%'.$request->get('name').'%');
+            $userQuery->where('roles.name', 'like', '%'.$request->get('name').'%');
         }
         if($request->has('email')) {
             $userQuery->where('email', 'like', '%'.$request->get('email').'%');
