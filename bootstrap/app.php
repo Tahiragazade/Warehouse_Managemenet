@@ -72,9 +72,10 @@ $app->configure('app');
 |
 */
 
- $app->middleware([
-     \App\Http\Middleware\Cors::class
- ]);
+$app->middleware([
+    App\Http\Middleware\Cors::class
+]);
+
  $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class, //commenti sildim
      'admin'=>App\Http\Middleware\AdminMiddleware::class,

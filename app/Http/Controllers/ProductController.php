@@ -20,7 +20,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $productQuery = Product::query()
-            ->select('products.name as product_name','categories.name as category_name','price','sale_price')
+            ->select('products.id as id','products.name as product_name','categories.name as category_name','price','sale_price')
             ->join('categories','products.category_id','=','categories.id');
         if($request->has('product_name'))
         {

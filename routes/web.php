@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\Artisan;
 | and give it the Closure to call when that URI is requested.
 |
 */
-    $router->options('/{any:.*}', function() { return response(['status' => 'success']); });
-    $router->group(['prefix' => 'api', 'middleware' => 'cors'], function () use ($router) {
+
+    $router->group(['prefix' => 'api'], function () use ($router) {
 
         $router->group(['middleware' => 'auth'], function () use ($router) {
             $router->get('profile', 'UserController@profile');
