@@ -13,7 +13,6 @@ class Warehouse extends Model
     protected $fillable=[
 
         'name',
-        'types',
         'created_by'
     ];
     /**

@@ -16,7 +16,6 @@ class CreateTableWarehouse extends Migration
         Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('types');
             $table->integer('created_by');
             $table->softDeletes();
             $table->timestamps();

@@ -40,8 +40,7 @@ class WarehouseController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'=>['required','string','unique:warehouses'],
-            'types'=>['required', 'integer']
+            'name'=>['required','string','unique:warehouses']
         ]);
 
         if ($validator->fails())
@@ -53,7 +52,6 @@ class WarehouseController extends Controller
 
         $model= new Warehouse();
         $model->name=$request->name;
-        $model->types=$request->types;
         $model->created_by=Auth::id();
         $model->save();
 
@@ -68,8 +66,7 @@ class WarehouseController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'=>['required','string','unique:warehouses'],
-            'types'=>['required', 'integer']
+            'name'=>['required','string','unique:warehouses']
         ]);
 
         if ($validator->fails())
@@ -81,7 +78,6 @@ class WarehouseController extends Controller
 
         $model= Warehouse::find($request->id);
         $model->name=$request->name;
-        $model->types=$request->types;
         $model->save();
 
         $logs= new Log();
