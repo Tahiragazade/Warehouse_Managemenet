@@ -22,8 +22,8 @@ class UserRoleController extends Controller
     {
         $userRoleQuery = UserRole::query()
             ->select('users.name as user_name','roles.name as role_name','warehouses.name as warehouse_name')
-            ->join('roles','user_roles.role_id','=','roles.id')
-            ->join('users','user_roles.user_id','=','users.id')
+            ->leftJoin('roles','user_roles.role_id','=','roles.id')
+            ->leftJoin('users','user_roles.user_id','=','users.id')
             ->leftJoin('warehouses','user_roles.warehouse_id','=','warehouses.id');
         if($request->has('name'))
         {
