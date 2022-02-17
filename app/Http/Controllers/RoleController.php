@@ -103,12 +103,6 @@ class RoleController extends Controller
         if($user_roles<=0 && !empty($roles))
         {
             $roles->delete();
-            $logs= new Log();
-            $logs->table_name='Roles';
-            $logs->record_id=$id;
-            $logs->action='delete';
-            $logs->created_by=Auth::id();
-            $logs->save();
 
             $logs= new Log();
             $logs->table_name='Role';

@@ -77,7 +77,7 @@ class ProductController extends Controller
         $model->save();
 
         $logs= new Log();
-        $logs->table_name='Products';
+        $logs->table_name='Product';
         $logs->record_id=$model->id;
         $logs->action='create';
         $logs->created_by=Auth::id();

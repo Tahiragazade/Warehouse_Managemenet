@@ -128,13 +128,14 @@ class CategoryController extends Controller
         if($products<=0 && $parent_id<=0 && !empty($category))
         {
             $category->delete();
-            return response()->json(['message'=>$category->name.' has been deleted']);
+
             $logs= new Log();
             $logs->table_name='Category';
             $logs->record_id=$id;
             $logs->action='delete';
             $logs->created_by=Auth::id();
             $logs->save();
+            return response()->json(['message'=>$category->name.' has been deleted']);
         }
         elseif($products>0||$parent_id>0)
         {

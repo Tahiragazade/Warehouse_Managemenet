@@ -41,7 +41,7 @@ class AuthController extends Controller
             $user->save();
             //create logs
             $logs= new Log();
-            $logs->table_name='users';
+            $logs->table_name='User';
             $logs->record_id=$user->id;
             $logs->action='create';
             $logs->created_by=Auth::id();
@@ -57,7 +57,7 @@ class AuthController extends Controller
 
             //create logs
             $logs_1= new Log();
-            $logs_1->table_name='roles';
+            $logs_1->table_name='Role';
             $logs_1->record_id=$userRole->id;
             $logs_1->action='create';
             $logs_1->created_by=Auth::id();
