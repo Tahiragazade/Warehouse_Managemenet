@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Log;
 use App\Models\Role;
+use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -94,9 +95,12 @@ class RoleController extends Controller
     }
     public function delete($id)
     {
-
+        $user_roles=UserRole::query()
+            ->select(['*'])
+            ->where('role_id',$id)
+            ->count();
         $roles=Role::find($id);
-        if( !empty($roles))
+        if($user_roles<=0 && !empty($roles))
         {
             $roles->delete();
             $logs= new Log();
@@ -114,6 +118,10 @@ class RoleController extends Controller
             $logs->save();
             return response()->json(['message'=>$roles->id.' has been deleted']);
 
+        }
+        elseif ($user_roles>0)
+        {
+            return response()->json(['message'=>$roles->id.' can not be deleted']);
         }
         else
         {
