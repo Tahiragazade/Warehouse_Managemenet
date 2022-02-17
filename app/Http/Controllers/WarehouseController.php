@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Log;
+use App\Models\UserRole;
 use App\Models\Warehouse;
 use App\Models\WarehouseTransaction;
 use Illuminate\Http\Request;
@@ -96,9 +97,13 @@ class WarehouseController extends Controller
             ])
             ->where('from_wh_id', $id)
             ->OrWhere('destination_wh_id',$id)
-            ->get();
+            ->count();
+        $roles=UserRole::query()
+            ->select(['*'])
+            ->where('warehouse_id',$id)
+            ->count();
         $warehouse=Warehouse::find($id);
-        if(count($transactions)==0 && !empty($warehouse))
+        if($transactions<=0 &&  $roles<=0 && !empty($warehouse))
         {
             $warehouse->delete();
             $logs= new Log();
@@ -109,7 +114,7 @@ class WarehouseController extends Controller
             $logs->save();
             return response()->json(['message'=>$warehouse->name.' has been deleted']);
         }
-        elseif(count($transactions)>0)
+        elseif($transactions>0 || $roles>0)
         {
             return response()->json(['message'=>$warehouse->name.' can not be deleted'],400);
         }
