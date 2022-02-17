@@ -32,18 +32,22 @@ class CategoryController extends Controller
             $offset = ($page - 1) * $limit;
             $count = count($categoryQuery->get());
             $categories = $categoryQuery->limit($limit)->offset($offset)->get();
+
         }
         else
         {
             $count = count($categoryQuery->get());
             $categories = $categoryQuery->get();
         }
-        foreach ($categories as $category) {
+        $categoryTree=GenerateCategoryIndex($categories);
+        clearEmptyChildren($categoryTree);
+        foreach ($categoryTree as $category) {
             if (!empty($category->parent_id)) {
                 $category->parent_id=Category::find($category->parent_id)->name;
             }
         }
-        return response()->json(['data' => $categories, 'total' => $count]);
+
+        return response()->json(['data' => $categoryTree, 'total' => $count]);
     }
     public function store(Request $request)
     {
@@ -114,9 +118,14 @@ class CategoryController extends Controller
             ->select(['*'
             ])
             ->where('category_id', $id)
-            ->get();
+            ->count();
+        $parent_id=Category::query()
+            ->select(['*'
+            ])
+            ->where('parent_id', $id)
+            ->count();
         $category=Category::find($id);
-        if(count($products)==0 && !empty($category))
+        if($products<=0 && $parent_id<=0 && !empty($category))
         {
             $category->delete();
             return response()->json(['message'=>$category->name.' has been deleted']);
@@ -127,7 +136,7 @@ class CategoryController extends Controller
             $logs->created_by=Auth::id();
             $logs->save();
         }
-        elseif(count($products)>0)
+        elseif($products>0||$parent_id>0)
         {
             return response()->json(['message'=>$category->name.' can not be deleted'],400);
         }

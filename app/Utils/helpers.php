@@ -11,6 +11,7 @@ use App\Models\UserRole;
 use App\Models\WarehouseRole;
 use App\Models\WarehouseTransaction;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 /*
  * Dropdown selector
@@ -53,7 +54,7 @@ function checkProductCount($from_id,$product_id)
     $status_out=1;
 
     $product_in = WarehouseTransaction::query()
-        ->select([DB::raw('sum(quantity) as quantity_in',)
+        ->select([DB::raw('sum(quantity) as quantity_in')
 
         ])
         ->where('destination_wh_id',$from_id)
@@ -82,64 +83,64 @@ function checkProductCount($from_id,$product_id)
     {
         $count = ($product_in[0]->quantity_in - $product_out[0]->quantity_out);
     }
-   return $count;
+    return $count;
 }
 
 //shows report of transaction belongs to store
 function storeReport($store_id)
 {
-        $report = [];
-        $status_in = 2;
-        $status_out = 1;
+    $report = [];
+    $status_in = 2;
+    $status_out = 1;
 
-        $product_id = WarehouseTransaction::query()
-            ->select(['product_id'
+    $product_id = WarehouseTransaction::query()
+        ->select(['product_id'
+        ])
+        ->where('from_wh_id', $store_id)
+        ->OrWhere('destination_wh_id', $store_id)
+        ->distinct()
+        ->get();
+    foreach ($product_id as $product) {
+        $product_id = $product->product_id;
+        $product_name = $product->productName->name;
+        $product_out = WarehouseTransaction::query()
+            ->select([DB::raw('sum(quantity) as quantity_out')
             ])
             ->where('from_wh_id', $store_id)
-            ->OrWhere('destination_wh_id', $store_id)
-            ->distinct()
+            ->where('product_id', $product_id)
+            ->where('status', $status_out)
             ->get();
-        foreach ($product_id as $product) {
-            $product_id = $product->product_id;
-            $product_name = $product->productName->name;
-            $product_out = WarehouseTransaction::query()
-                ->select([DB::raw('sum(quantity) as quantity_out')
-                ])
-                ->where('from_wh_id', $store_id)
-                ->where('product_id', $product_id)
-                ->where('status', $status_out)
-                ->get();
 
-            $product_in = WarehouseTransaction::query()
-                ->select([DB::raw('sum(quantity) as quantity_in')
-                ])
-                ->where('destination_wh_id', $store_id)
-                ->where('product_id', $product_id)
-                ->where('status', $status_in)
-                ->get();
+        $product_in = WarehouseTransaction::query()
+            ->select([DB::raw('sum(quantity) as quantity_in')
+            ])
+            ->where('destination_wh_id', $store_id)
+            ->where('product_id', $product_id)
+            ->where('status', $status_in)
+            ->get();
 
-            if (count($product_in) == 0) {
-                $count_in = 0;
-            } else {
-                $count_in = $product_in[0]->quantity_in;
-            }
-            if ($product_out->count() <= 0) {
-                $count_out = 0;
-            } else {
-                $count_out = $product_out[0]->quantity_out;
-            }
-            $total_count = $count_in - $count_out;
-            $report[] = array(
-                'product_id' => $product_id,
-                'product_name' => $product_name,
-                'count_in' => $count_in,
-                'count_out' => $count_out,
-                'report' => $total_count
-
-            );
+        if (count($product_in) == 0) {
+            $count_in = 0;
+        } else {
+            $count_in = $product_in[0]->quantity_in;
         }
+        if ($product_out->count() <= 0) {
+            $count_out = 0;
+        } else {
+            $count_out = $product_out[0]->quantity_out;
+        }
+        $total_count = $count_in - $count_out;
+        $report[] = array(
+            'product_id' => $product_id,
+            'product_name' => $product_name,
+            'count_in' => $count_in,
+            'count_out' => $count_out,
+            'report' => $total_count
 
-        return $report;
+        );
+    }
+
+    return $report;
 
 }
 //First version of checking user before transaction
@@ -159,18 +160,18 @@ function checkWarehouseRole($store_id,$user_id)
 //check if user is admin or not -- 1 is admin -- 2 is not admin
 function isAdmin($user_id)
 {
-  $admin = UserRole::query()
-      ->select(['*'])
-      ->where('user_id',$user_id)
-      ->where('role_id','=',1)
-      ->get();
-  if(count($admin)>0)
-  {
-      return 1;
-  }
-  else{
-      return 2;
-  }
+    $admin = UserRole::query()
+        ->select(['*'])
+        ->where('user_id',$user_id)
+        ->where('role_id','=',1)
+        ->get();
+    if(count($admin)>0)
+    {
+        return 1;
+    }
+    else{
+        return 2;
+    }
 }
 //check if user is Storekeeper or not -- 1 is Storekeeper -- 2 is not Storekeeper
 function isStorekeeper($store_id,$user_id)
@@ -206,18 +207,25 @@ function isSameUser($user_id)
         return 2;
     }
 }
-
-function GenerateDropdownTree($datas) {
+function GenerateCategoryIndex($categories, $parent = null) {
     $tree = [];
-    foreach ($datas as $data) {
-
-            $tree[] = array(
-                'key' => $data->id,
-                'value' => $data->id,
-                'title' => $data->name
-            );
-
+    foreach ($categories as $category) {
+        if($category->parent_id == $parent) {
+            $tree[] = [
+                'key' => $category->id,
+                'value' => $category->id,
+                'id' => $category->id,
+                'name' => $category->name,
+                'parent_id' => $category->parent_id,
+                'children' => GenerateCategoryIndex($categories, $category->id)
+            ];
+        }
     }
 
     return $tree;
+}
+function sum($a)
+{
+    $b=$a*2;
+    return $b;
 }
