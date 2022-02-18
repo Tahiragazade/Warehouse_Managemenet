@@ -133,8 +133,10 @@ class UserRoleController extends Controller
     }
     public function single($id)
     {
-        $model=UserRole::find($id);
-
-        return response()->json(['data'=>$model]);
+        $model=UserRole::query()
+            ->select('*')
+            ->where('id', $id)
+            ->first();
+        return response()->json([$model]);
     }
 }

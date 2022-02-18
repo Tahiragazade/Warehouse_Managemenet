@@ -161,9 +161,8 @@ public function delete($id)
         $model=Product::query()
             ->select('*')
             ->where('id', $request->id)
-            ->Orwhere('name',$request->name)
-            ->get();
-        return response()->json(['data'=>$model]);
+            ->first();
+        return response()->json([$model]);
     }
     public function dropdown(){
         $datas=Product::all();

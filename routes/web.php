@@ -34,14 +34,14 @@ use Illuminate\Support\Facades\Artisan;
 
             //warehouse routes
             $router->post('/warehouse', 'WarehouseController@store');
-            $router->put('/warehouse', 'WarehouseController@update');
+            $router->put('/warehouse/{id}', 'WarehouseController@update');
             $router->get('/warehouse', 'WarehouseController@index');
             $router->get('/warehouse/{id}', 'WarehouseController@single');
             $router->delete('/warehouse/{id}', 'WarehouseController@delete');
             $router->get('/transaction', 'WarehouseTransactionController@index');
             //category routes
             $router->post('/category', 'CategoryController@store');
-            $router->put('/category', 'CategoryController@update');
+            $router->put('/category/{id}', 'CategoryController@update');
             $router->delete('/category/{id}', 'CategoryController@delete');
             $router->get('/category', 'CategoryController@index');
             $router->get('/category/{id}', 'CategoryController@single');
@@ -49,19 +49,19 @@ use Illuminate\Support\Facades\Artisan;
             $router->post('/product', 'ProductController@store');
             $router->get('/product', 'ProductController@index');
             $router->get('/product/{id}', 'ProductController@single');
-            $router->put('/product', 'ProductController@update');
+            $router->put('/product/{id}', 'ProductController@update');
             $router->delete('/product/{id}', 'ProductController@delete');
             //Roles
             $router->post('/roles', 'RoleController@store');
             $router->get('/roles', 'RoleController@index');
-            $router->put('/roles', 'RoleController@update');
+            $router->put('/roles/{id}', 'RoleController@update');
             $router->get('/roles/dropdown', 'RoleController@dropdown');
             $router->get('/roles/{id}', 'RoleController@single');
             $router->delete('/roles/{id}', 'RoleController@delete');
             //user Roles
             $router->post('/userroles', 'UserRoleController@store');
             $router->get('/userroles', 'UserRoleController@index');
-            $router->put('/userroles', 'UserRoleController@update');
+            $router->put('/userroles/{id}', 'UserRoleController@update');
             $router->get('/userroles/{id}', 'UserRoleController@single');
             //users
             $router->post('register', 'AuthController@register');

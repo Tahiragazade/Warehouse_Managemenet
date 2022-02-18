@@ -73,9 +73,11 @@ class UserController extends Controller
     {
 
         try {
-            $user = User::findOrFail($id);
-
-            return response()->json(['user' => $user], 200);
+            $model = User::query()
+                ->select('*')
+                ->where('id', $id)
+                ->first();
+            return response()->json([$model]);
 
         } catch (\Exception $e) {
 

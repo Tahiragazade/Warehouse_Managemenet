@@ -152,7 +152,7 @@ class CategoryController extends Controller
         $model=Category::query()
             ->select('*')
             ->where('id', $id)
-            ->get();
-        return response()->json(['data'=>$model]);
+            ->first();
+        return response()->json([$model]);
     }
     }
