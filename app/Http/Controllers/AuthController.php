@@ -130,16 +130,20 @@ class AuthController extends Controller
             $logs->created_by=Auth::id();
             $logs->save();
 
-            //delete old roles to use while creating user
+
             $user_roles=UserRole::query()
-                ->where('user_id','=',$request->id)->get();
-            $role_id=$user_roles->id;
-            $user_roles->delete();
+                ->where('user_id','=',$request->id)->first();
+            $user_roles->role_id=$request->role_id;
+            if($request->has('warehouse_id'))
+            {
+                $user_roles->warehouse_id=$request->warehouse_id;
+            }
+            $user_roles->save();
 
             $logs_2= new Log();
             $logs_2->table_name='UserRole';
-            $logs_2->record_id=$role_id;
-            $logs_2->action='delete';
+            $logs_2->record_id=$user_roles->id;
+            $logs_2->action='Update';
             $logs_2->created_by=Auth::id();
             $logs_2->save();
 
