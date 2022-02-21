@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -87,7 +88,7 @@ class CategoryController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'=>['required','string','unique:categories'],
+            'name'=>['string', Rule::unique('categories')->ignore($request->id)],
 
         ]);
 
@@ -97,7 +98,10 @@ class CategoryController extends Controller
                 'error' => $validator->errors()
             ], 400);
         }
-
+        if($request->parent_id==$request->id)
+        {
+            return response()->json(['message'=>'Əsas kategoriya və Alt kategoriya eyni ola bilməz']);
+        }
         $model= Category::find($request->id);
         $model->name=$request->name;
         $model->parent_id=$request->parent_id;
@@ -153,6 +157,6 @@ class CategoryController extends Controller
             ->select('*')
             ->where('id', $id)
             ->first();
-        return response()->json([$model]);
+        return response()->json($model);
     }
     }

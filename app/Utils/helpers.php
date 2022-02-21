@@ -238,3 +238,17 @@ function GenerateDropdownTree($datas) {
 
     return $tree;
 }
+function GenerateDropdownLog($datas) {
+    $tree = [];
+    foreach ($datas as $data) {
+
+        $tree[] = array(
+            'key' => $data->name,
+            'value' => $data->name,
+            'title' => $data->name
+        );
+
+    }
+
+    return $tree;
+}

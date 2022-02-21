@@ -92,7 +92,7 @@ class WarehouseTransactionController extends Controller
         }
         $quantityChecker=checkProductCount($from_wh_id,$product_id );
 
-        if($request->status==1 ) {
+        $status=1;
             $checkUser=isStorekeeper($from_wh_id,Auth::id());
             if($checkUser==1) {
 
@@ -104,7 +104,7 @@ class WarehouseTransactionController extends Controller
                     $model->transaction_id = $request->transaction_id;
                     $model->from_wh_id = $request->from_wh_id;
                     $model->from_id=Auth::id();
-                    $model->status = $request->status;
+                    $model->status = $status;
                     $model->save();
 
                     $logs= new Log();
@@ -116,13 +116,13 @@ class WarehouseTransactionController extends Controller
 
                     return response()->json(['data' => $model]);
                 } else {
-                    return response()->json(['message' => 'you have only ' . $quantityChecker . ' left']);
+                    return response()->json(['message' => 'you have only ' . $quantityChecker . ' left'],404);
                 }
             }
             else {
                 return response()->json(['message' => 'You dont have Permission to do This'],403);
             }
-        }
+
 
         return response()->json(['message' => 'Something get wrong'],404);
 
@@ -150,7 +150,7 @@ class WarehouseTransactionController extends Controller
         $to_wh_id=$request->destination_wh_id;
 
 
-        if($request->status==2) {
+        $status=2;
             $checkUser = isStorekeeper($to_wh_id, Auth::id());
             if ($checkUser == 1) {
                 $model = new WarehouseTransaction();
@@ -160,7 +160,7 @@ class WarehouseTransactionController extends Controller
                 $model->transaction_id = $request->transaction_id;
                 $model->to_id = Auth::id();
                 //$model->from_wh_id = $request->from_wh_id;
-                $model->status = $request->status;
+                $model->status =$status;
                 $model->save();
 
                 $transaction = WarehouseTransaction::where('transaction_id', $request->transaction_id)->first();
@@ -178,7 +178,7 @@ class WarehouseTransactionController extends Controller
             } else {
                 return response()->json(['message' => 'You dont have Permission to do This'],403);
             }
-        }
+
        // return response()->json(['message' => 'Something get wrong'],404);
     }
     public function registrToWarehouse(Request $request)
@@ -193,7 +193,7 @@ class WarehouseTransactionController extends Controller
                 'error' => $validator->errors()
             ], 400);
         }
-        if ($request->status == 2) {
+        $status=2;
 
             $transaction = WarehouseTransaction::where('transaction_id', $request->transaction_id)->first();
             $store_id = $transaction->destination_wh_id;
@@ -222,7 +222,7 @@ class WarehouseTransactionController extends Controller
                 $model->transaction_id = $transaction->transaction_id;
                 $model->from_wh_id = $transaction->from_wh_id;
                 $model->to_id=Auth::id();
-                $model->status = $request->status;
+                $model->status = $status;
                 $transaction->updated_at = Carbon::now();
                 $transaction->save();
                 $model->save();
@@ -241,8 +241,8 @@ class WarehouseTransactionController extends Controller
                 return response()->json(['message' => $checkUser.'You dont have Permission to do This']);
             }
 
-        }
-        return response()->json(['message' => 'Something get wrong'],404);
+
+        //return response()->json(['message' => 'Something get wrong'],404);
     }
 
     public function checkStore($store_id)

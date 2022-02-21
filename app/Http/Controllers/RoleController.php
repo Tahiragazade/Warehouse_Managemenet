@@ -126,8 +126,9 @@ class RoleController extends Controller
     {
         $model=Role::query()
             ->select('*')
-            ->where('id', $request->id)
+            ->where('id', $id)
             ->first();
+        return response()->json($model);
     }
     public function dropdown(){
         $datas=Role::all();

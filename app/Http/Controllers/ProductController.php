@@ -9,6 +9,7 @@ use App\Models\WarehouseTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -88,7 +89,7 @@ class ProductController extends Controller
 public function update(Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'name'=>['string','unique:products'],
+        'name'=>['string',Rule::unique('products')->ignore($request->id)],
         'category_id'=>['integer'],
         'price'=>['integer'],
         'sale_price'=>['integer']
@@ -162,7 +163,7 @@ public function delete($id)
             ->select('*')
             ->where('id', $request->id)
             ->first();
-        return response()->json([$model]);
+        return response()->json($model);
     }
     public function dropdown(){
         $datas=Product::all();

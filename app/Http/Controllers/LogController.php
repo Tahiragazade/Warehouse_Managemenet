@@ -6,6 +6,7 @@ use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Role;
 
 class LogController extends Controller
 {
@@ -51,5 +52,26 @@ class LogController extends Controller
         return response()->json(['data' => $logs, 'total' => $count]);
     }
 
+    public function dropdown()
+    {
+        $logs=Log::query()
+            ->select('table_name as name')
+            ->distinct()
+            ->get();
+        $log=GenerateDropdownLog($logs);
 
+        return response()->json($log);
+    }
+    public function deleted(Request $request)
+    {
+        $model = $request->name;
+        $models = 'App\Models\\' . $model;
+        $datas = $models::onlyTrashed()->get();
+        foreach ($datas as $data)
+        {
+            $data->model = $model;
+        }
+        return response()->json(['data'=>$datas]);
+
+    }
 }

@@ -65,10 +65,13 @@ use Illuminate\Support\Facades\Artisan;
             $router->get('/userroles/{id}', 'UserRoleController@single');
             //users
             $router->post('register', 'AuthController@register');
+            $router->put('update/{id}', 'AuthController@update');
             $router->get('users/{id}', 'UserController@singleUser');
             $router->get('users', 'UserController@allUsers');
             $router->get('dropdown', 'UserController@dropdown');
             $router->get('logs', 'LogController@index');
+            $router->get('logs/dropdown', 'LogController@dropdown');
+            $router->get('logs/deleted', 'LogController@deleted');
 
 
         });

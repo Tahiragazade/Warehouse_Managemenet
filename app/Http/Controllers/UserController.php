@@ -74,14 +74,21 @@ class UserController extends Controller
 
         try {
             $model = User::query()
-                ->select('*')
-                ->where('id', $id)
+                ->select('users.id as id',
+                    'users.name as user_name',
+                    'users.email as user_email',
+                    'roles.name as user_role',
+                    'warehouses.name as warehouse_name')
+                ->where('users.id','=',$id)
+                ->leftJoin('user_roles', 'user_id','=','users.id')
+                ->leftJoin('roles','roles.id','=','user_roles.role_id')
+                ->leftJoin('warehouses','warehouses.id','=','user_roles.warehouse_id')
                 ->first();
-            return response()->json([$model]);
+            return response()->json($model);
 
         } catch (\Exception $e) {
 
-            return response()->json(['message' => 'user not found!'], 404);
+            return response()->json(['message' =>'user not found!'], 404);
         }
 
     }

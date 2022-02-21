@@ -129,8 +129,8 @@ class WarehouseController extends Controller
         $model=Warehouse::query()
             ->select('*')
             ->where('id', $id)
-            ->get();
-        return response()->json(['data'=>$model]);
+            ->first();
+        return response()->json($model);
     }
     public function dropdown(){
         $datas=Warehouse::all();

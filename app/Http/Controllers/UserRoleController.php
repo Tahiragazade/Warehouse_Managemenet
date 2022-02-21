@@ -75,7 +75,7 @@ class UserRoleController extends Controller
         $model->save();
 
         $logs= new Log();
-        $logs->table_name='userRole';
+        $logs->table_name='UserRole';
         $logs->record_id=$model->id;
         $logs->action='create';
         $logs->created_by=Auth::id();
@@ -137,6 +137,7 @@ class UserRoleController extends Controller
             ->select('*')
             ->where('id', $id)
             ->first();
-        return response()->json([$model]);
+        return response()->json($model);
     }
+
 }
