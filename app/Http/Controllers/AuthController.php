@@ -103,8 +103,7 @@ class AuthController extends Controller
         //validate incoming request
         $this->validate($request, [
             'name' => 'required|string',
-            'email'=>['string',Rule::unique('users')->ignore($id)],
-            'role_id' => 'required|integer',
+            'email'=>['string',Rule::unique('users')->ignore($id)]
 
         ]);
 
@@ -118,8 +117,6 @@ class AuthController extends Controller
                 $plainPassword = $request->input('password');
                 $user->password = app('hash')->make($plainPassword);
             }
-
-            $user->created_by=Auth::id();
 
             $user->save();
             //create logs
@@ -147,20 +144,6 @@ class AuthController extends Controller
             $logs_2->created_by=Auth::id();
             $logs_2->save();
 
-            $userRole= new UserRole();
-            $userRole->user_id=$id;
-            $userRole->role_id=$request->input('role_id');
-            $userRole->created_by=Auth::id();
-            $userRole->warehouse_id=$request->input('warehouse_id');
-            $userRole->save();
-
-            //create logs
-            $logs_1= new Log();
-            $logs_1->table_name='UserRole';
-            $logs_1->record_id=$userRole->id;
-            $logs_1->action='create';
-            $logs_1->created_by=Auth::id();
-            $logs_1->save();
 
             //return successful response
             return response()->json(['user' => $user, 'message' => 'Updated'], 201);

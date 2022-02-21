@@ -137,6 +137,8 @@ class UserRoleController extends Controller
             ->select('*')
             ->where('id', $id)
             ->first();
+
+
         return response()->json($model);
     }
 

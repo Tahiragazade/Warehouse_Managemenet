@@ -36,9 +36,10 @@ class UserController extends Controller
     public function allUsers(Request $request)
     {
         $userQuery = User::query()
-            ->select('users.id as user_id','users.name as user_name','users.email as user_email','roles.name as role_name')
+            ->select('users.id as id','users.name as user_name','users.email as user_email','roles.name as role_name','warehouses.name as wh_name')
             ->leftJoin('user_roles','users.id','=','user_roles.user_id')
-            ->leftJoin('roles','user_roles.role_id','=','roles.id');
+            ->leftJoin('roles','user_roles.role_id','=','roles.id')
+            ->leftJoin('warehouses','user_roles.warehouse_id','=','warehouses.id');
 
 
         if($request->has('name')) {
@@ -75,10 +76,10 @@ class UserController extends Controller
         try {
             $model = User::query()
                 ->select('users.id as id',
-                    'users.name as user_name',
-                    'users.email as user_email',
-                    'roles.name as user_role',
-                    'warehouses.name as warehouse_name')
+                    'users.name as name',
+                    'users.email as email',
+                    'roles.id as role_id',
+                    'warehouses.id as warehouse_id')
                 ->where('users.id','=',$id)
                 ->leftJoin('user_roles', 'user_id','=','users.id')
                 ->leftJoin('roles','roles.id','=','user_roles.role_id')
