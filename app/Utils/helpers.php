@@ -11,7 +11,9 @@ use App\Models\User;
 use App\Models\UserRole;
 use App\Models\WarehouseRole;
 use App\Models\WarehouseTransaction;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -104,8 +106,25 @@ function storeReport($request)
     $status_out = 1;
     $store_id=$request->store_id;
     $type=$request->type;
-    $from_date=Carbon::parse($request->from_date)->format('Y-m-d');
-    $to_date=Carbon::parse($request->to_date)->format('Y-m-d');
+    if($request->has('from_date')&&$request->from_date!=null){
+
+        $from_date=Carbon::parse($request->from_date);
+    }
+    elseif(!$request->has('from_date')||$request->from_date==null)
+    {
+        $from_date=Carbon::yesterday();
+    }
+    if($request->has('to_date'))
+    {
+
+        $to_date=Carbon::parse($request->to_date)->addHours(24)->subMicrosecond(1);
+    }
+    elseif(!$request->has('to_date')||$request->to_date==null)
+    {
+        $to_date=Carbon::now();
+    }
+
+    $name=$request->product_name;
 
     $type=$request->type;
 
@@ -114,7 +133,10 @@ function storeReport($request)
     {
         return 'Anbarı seçməmisiniz';
     }
-    $all_products=Product::all();
+    $all_products=Product::query()
+        ->select(['*'])
+        ->where('name','like','%'.$name.'%')
+        ->get();
     foreach ($all_products as $products) {
         $product_id = $products->id;
         $product_name = $products->name;
@@ -125,8 +147,7 @@ function storeReport($request)
                     ->select([DB::raw('sum(quantity) as quantity_out')
                     ])
                     ->where('from_wh_id', $store_id)
-//                ->where('created_at','>=',$from_date)
-//                ->where('created_at','<=',$to_date)
+                    ->whereBetween('created_at',[$from_date,$to_date])
                     ->where('product_id', $product_id)
                     ->where('status', $status_out)
                     ->get();
@@ -135,7 +156,7 @@ function storeReport($request)
                     ->select([DB::raw('sum(quantity) as quantity_in')
                     ])
                     ->where('destination_wh_id', $store_id)
-//                ->whereBetween('created_at',['%'.$from_date.'%','%'.$to_date.'%'])
+                    ->whereBetween('created_at',[$from_date,$to_date])
                     ->where('product_id', $product_id)
                     ->where('status', $status_in)
                     ->get();
@@ -196,7 +217,6 @@ function storeReport($request)
                     );
                 }
             }
-
     }
 
     return $report;
@@ -311,3 +331,4 @@ function GenerateDropdownLog($datas) {
 
     return $tree;
 }
+

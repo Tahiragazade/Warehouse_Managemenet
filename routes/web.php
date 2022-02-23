@@ -72,6 +72,7 @@ use Illuminate\Support\Facades\Artisan;
             $router->get('logs', 'LogController@index');
             $router->get('logs/dropdown', 'LogController@dropdown');
             $router->get('logs/deleted', 'LogController@deleted');
+            $router->get('/transaction/type', 'WarehouseTransactionController@typeDropdown');
 
 
         });

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+
 class WarehouseTransactionController extends Controller
 {
     public function __construct()
@@ -27,14 +28,17 @@ class WarehouseTransactionController extends Controller
                 'fr_wh.name as from_wh_name',
                 'dest_wh.name as dest_wh_name',
                 'wht.transaction_id as th_id',
-                'wht.notes as note'
+                'wht.notes as note',
+                'wht.created_at as created_at',
+                'wht.updated_at as updated_at'
             )
 
             ->leftJoin('products','wht.product_id','=','products.id')
             ->leftJoin('users as to_user','wht.to_id','=','to_user.id')
             ->leftJoin('users as fr_user','wht.from_id','=','fr_user.id')
             ->leftJoin('warehouses as dest_wh','wht.destination_wh_id','=','dest_wh.id')
-            ->leftJoin('warehouses as fr_wh','wht.from_wh_id','=','fr_wh.id');
+            ->leftJoin('warehouses as fr_wh','wht.from_wh_id','=','fr_wh.id')
+            ->orderByDesc('id');
 
         if($request->has('product_name'))
         {
@@ -262,7 +266,45 @@ class WarehouseTransactionController extends Controller
     public function checkStore(Request $request)
     {
         $report=storeReport($request);
-        return response()->json(['data' => $report]);
+        $total=count($report);
+        if($request->has('page')&&$request->page!=null && $request->has('limit') && $request->limit!=null) {
+            $page = $request->page;
 
+            $limit = $request->limit;
+
+            $total_pages = ceil($total / $limit);
+            if ($page > $total_pages) {
+                $page = $total_pages;
+            }
+            $offset = ($page - 1) * $limit;
+
+            $data = array_slice($report, $offset, $limit);
+
+            return response()->json(['data' => $data, 'total' => $total]);
+        }
+        else
+        {
+            return response()->json(['data' => $report, 'total' => $total]);
+        }
+    }
+
+    public function typeDropdown()
+    {
+        $type=[];
+        $types=[
+            0=>'Hamısı',
+            1=>'Gedən Mallar',
+            2=>'Gələn Mallar',
+            3=>'Anbarda Olan Mallar'
+            ];
+        foreach ($types as $key=>$value)
+        {
+            $type[] = array(
+                'key' => $key,
+                'value' => $key,
+                'title' => $value
+            );
+        }
+        return response()->json(['data'=>$type]);
     }
 }
