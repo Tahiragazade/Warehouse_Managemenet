@@ -25,7 +25,9 @@ class WarehouseTransactionController extends Controller
                 'to_user.name as user_name',
                 'fr_user.name as from_user',
                 'fr_wh.name as from_wh_name',
-                'dest_wh.name as dest_wh_name'
+                'dest_wh.name as dest_wh_name',
+                'wht.transaction_id as th_id',
+                'wht.notes as note'
             )
 
             ->leftJoin('products','wht.product_id','=','products.id')
@@ -71,7 +73,6 @@ class WarehouseTransactionController extends Controller
             'product_id'=>['required','integer'],
             'quantity'=>['required','integer'],
             'destination_wh_id'=>['required','integer'],
-            'status'=>['required','integer'],
             'note'=>['string']
         ]);
 
@@ -104,6 +105,8 @@ class WarehouseTransactionController extends Controller
                     $model->transaction_id = $request->transaction_id;
                     $model->from_wh_id = $request->from_wh_id;
                     $model->from_id=Auth::id();
+
+                    $model->notes=$request->note;
                     $model->status = $status;
                     $model->save();
 
@@ -133,7 +136,6 @@ class WarehouseTransactionController extends Controller
             'product_id'=>['required','integer'],
             'quantity'=>['required','integer'],
             'destination_wh_id'=>['required','integer'],
-            'status'=>['required','integer'],
             'note'=>['string']
         ]);
 
@@ -161,6 +163,7 @@ class WarehouseTransactionController extends Controller
                 $model->to_id = Auth::id();
                 //$model->from_wh_id = $request->from_wh_id;
                 $model->status =$status;
+                $model->notes=$request->note;
                 $model->save();
 
                 $transaction = WarehouseTransaction::where('transaction_id', $request->transaction_id)->first();
@@ -181,21 +184,32 @@ class WarehouseTransactionController extends Controller
 
        // return response()->json(['message' => 'Something get wrong'],404);
     }
-    public function registrToWarehouse(Request $request)
+    public function registrToWarehouse($id, Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'transaction_id' => ['required', 'string'],
-            'status' => ['required', 'integer']
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'error' => $validator->errors()
-            ], 400);
-        }
+//        $validator = Validator::make($request->all(), [
+//            'transaction_id' => ['required', 'string']
+//        ]);
+//
+//        if ($validator->fails()) {
+//            return response()->json([
+//                'error' => $validator->errors()
+//            ], 400);
+//        }
+        $transaction_id=$id;
         $status=2;
-
-            $transaction = WarehouseTransaction::where('transaction_id', $request->transaction_id)->first();
+        $checkTransaction=WarehouseTransaction::query()
+            ->select(['transaction_id','status'])
+            ->where('transaction_id','=',$transaction_id)
+            ->get();
+        foreach ($checkTransaction as $chTR)
+        {
+            if($chTR->status==2)
+            {
+                return response()->json(['message' => 'Bu Transactionu siz artıq qəbul etmisiniz.']);
+            }
+        }
+            $transaction = WarehouseTransaction::where('transaction_id', $transaction_id)->first();
             $store_id = $transaction->destination_wh_id;
             $checkUser = isStorekeeper($store_id, Auth::id());
             if ($checkUser == 1) {
@@ -245,9 +259,9 @@ class WarehouseTransactionController extends Controller
         //return response()->json(['message' => 'Something get wrong'],404);
     }
 
-    public function checkStore($store_id)
+    public function checkStore(Request $request)
     {
-        $report=storeReport($store_id);
+        $report=storeReport($request);
         return response()->json(['data' => $report]);
 
     }

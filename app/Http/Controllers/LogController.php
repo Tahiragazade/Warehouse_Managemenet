@@ -66,10 +66,13 @@ class LogController extends Controller
     {
         $model = $request->name;
         $models = 'App\Models\\' . $model;
-        $datas = $models::onlyTrashed()->get();
+        $datas = $models::query()
+            ->select(['id','name','deleted_at'])
+            ->onlyTrashed()
+            ->get();
         foreach ($datas as $data)
         {
-            $data->model = $model;
+            $data->model = $model.'/'.$data->id;
         }
         return response()->json(['data'=>$datas]);
 

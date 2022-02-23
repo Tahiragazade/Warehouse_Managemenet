@@ -18,7 +18,8 @@ class WarehouseTransaction extends Model
         'destinition_wh_id',
         'from_wh_id',
         'transaction_id',
-        'status'
+        'status',
+        'notes'
     ];
     /**
      * @var mixed

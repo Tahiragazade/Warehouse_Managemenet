@@ -6,10 +6,12 @@
  * @return array
  */
 
+use App\Models\Product;
 use App\Models\User;
 use App\Models\UserRole;
 use App\Models\WarehouseRole;
 use App\Models\WarehouseTransaction;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -87,57 +89,114 @@ function checkProductCount($from_id,$product_id)
 }
 
 //shows report of transaction belongs to store
-function storeReport($store_id)
+function storeReport($request)
 {
+    /*
+     * types =>[
+     * hamısı -0
+     * gedən mallar-1
+     * gələn mallar-2
+     * anbarda olan mallar -3
+     * ]
+     */
     $report = [];
     $status_in = 2;
     $status_out = 1;
+    $store_id=$request->store_id;
+    $type=$request->type;
+    $from_date=Carbon::parse($request->from_date)->format('Y-m-d');
+    $to_date=Carbon::parse($request->to_date)->format('Y-m-d');
 
-    $product_id = WarehouseTransaction::query()
-        ->select(['product_id'
-        ])
-        ->where('from_wh_id', $store_id)
-        ->OrWhere('destination_wh_id', $store_id)
-        ->distinct()
-        ->get();
-    foreach ($product_id as $product) {
-        $product_id = $product->product_id;
-        $product_name = $product->productName->name;
-        $product_out = WarehouseTransaction::query()
-            ->select([DB::raw('sum(quantity) as quantity_out')
-            ])
-            ->where('from_wh_id', $store_id)
-            ->where('product_id', $product_id)
-            ->where('status', $status_out)
-            ->get();
+    $type=$request->type;
 
-        $product_in = WarehouseTransaction::query()
-            ->select([DB::raw('sum(quantity) as quantity_in')
-            ])
-            ->where('destination_wh_id', $store_id)
-            ->where('product_id', $product_id)
-            ->where('status', $status_in)
-            ->get();
 
-        if (count($product_in) == 0) {
-            $count_in = 0;
-        } else {
-            $count_in = $product_in[0]->quantity_in;
+    if($store_id=="")
+    {
+        return 'Anbarı seçməmisiniz';
+    }
+    $all_products=Product::all();
+    foreach ($all_products as $products) {
+        $product_id = $products->id;
+        $product_name = $products->name;
+
+
+
+                $product_out = WarehouseTransaction::query()
+                    ->select([DB::raw('sum(quantity) as quantity_out')
+                    ])
+                    ->where('from_wh_id', $store_id)
+//                ->where('created_at','>=',$from_date)
+//                ->where('created_at','<=',$to_date)
+                    ->where('product_id', $product_id)
+                    ->where('status', $status_out)
+                    ->get();
+
+                $product_in = WarehouseTransaction::query()
+                    ->select([DB::raw('sum(quantity) as quantity_in')
+                    ])
+                    ->where('destination_wh_id', $store_id)
+//                ->whereBetween('created_at',['%'.$from_date.'%','%'.$to_date.'%'])
+                    ->where('product_id', $product_id)
+                    ->where('status', $status_in)
+                    ->get();
+
+            if (count($product_in) == 0) {
+                $count_in = 0;
+            } else {
+                $count_in = $product_in[0]->quantity_in;
+            }
+            if ($product_out->count() <= 0) {
+                $count_out = 0;
+            } else {
+                $count_out = $product_out[0]->quantity_out;
+            }
+            $total_count = $count_in - $count_out;
+
+            if($type==1 && $count_out>0)
+            {
+                $report[] = array(
+                    'product_id' => $product_id,
+                    'product_name' => $product_name,
+                    'report' => $count_out
+
+                );
+            }
+        if($type==2 && $count_in>0)
+        {
+            $report[] = array(
+                'product_id' => $product_id,
+                'product_name' => $product_name,
+                'report' => $count_in
+
+            );
         }
-        if ($product_out->count() <= 0) {
-            $count_out = 0;
-        } else {
-            $count_out = $product_out[0]->quantity_out;
-        }
-        $total_count = $count_in - $count_out;
-        $report[] = array(
-            'product_id' => $product_id,
-            'product_name' => $product_name,
-            'count_in' => $count_in,
-            'count_out' => $count_out,
-            'report' => $total_count
+        if($type==3)
+        {
+            if($total_count>0)
+            {
+                $report[] = array(
+                    'product_id' => $product_id,
+                    'product_name' => $product_name,
+                    'count_in' => $count_in,
+                    'count_out' => $count_out,
+                    'report' => $total_count
 
-        );
+                );
+            }
+        }
+            elseif($type==null||$type==0) {
+                if ($count_in > 0) {
+                    $report[] = array(
+                        'product_id' => $product_id,
+                        'product_name' => $product_name,
+                        'count_in' => $count_in,
+                        'count_out' => $count_out,
+                        'report' => $total_count
+
+                    );
+                }
+            }
+
     }
 
     return $report;

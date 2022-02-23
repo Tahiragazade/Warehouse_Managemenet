@@ -81,13 +81,13 @@ use Illuminate\Support\Facades\Artisan;
 
         });
         $router->group(['middleware' => 'stores'], function () use ($router) {
-            $router->get('/transaction/{store_id}', 'WarehouseTransactionController@checkStore');
+            $router->get('/transaction/report', 'WarehouseTransactionController@checkStore');
 
         });
 
         $router->group(['middleware' => 'to'], function () use ($router) {
             $router->post('/transaction/store', 'WarehouseTransactionController@store');
-            $router->post('/transaction/registration', 'WarehouseTransactionController@registrToWarehouse');
+            $router->post('/transaction/registration/{id}', 'WarehouseTransactionController@registrToWarehouse');
 
         });
 
@@ -97,6 +97,7 @@ use Illuminate\Support\Facades\Artisan;
         $router->post('/test/post', 'TestController@post');
 
         $router->get('/test/get', 'TestController@get');
+
 
 
     });

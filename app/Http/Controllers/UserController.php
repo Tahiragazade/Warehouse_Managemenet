@@ -43,10 +43,16 @@ class UserController extends Controller
 
 
         if($request->has('name')) {
-            $userQuery->where('roles.name', 'like', '%'.$request->get('name').'%');
+            $userQuery->where('users.name', 'like', '%'.$request->get('name').'%');
         }
         if($request->has('email')) {
             $userQuery->where('email', 'like', '%'.$request->get('email').'%');
+        }
+        if($request->has('role')) {
+            $userQuery->where('roles.name', 'like', '%'.$request->get('role').'%');
+        }
+        if($request->has('warehouse')) {
+            $userQuery->where('warehouses.name', 'like', '%'.$request->get('warehouse').'%');
         }
         if($request->has('limit')&&$request->has('page')) {
             $page = $request->page;
