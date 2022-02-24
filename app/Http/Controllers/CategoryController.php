@@ -103,10 +103,16 @@ class CategoryController extends Controller
         {
             return response()->json(['message'=>'Əsas kategoriya və Alt kategoriya eyni ola bilməz']);
         }
+        $submodel=Category::where(['parent_id'=>$request->id])->count();
+        if($submodel>0)
+        {
+            return response()->json(['message'=>'You can\'t change it because It has a subCategory'],403);
+        }
         $model= Category::find($request->id);
         $model->name=$request->name;
         $model->parent_id=$request->parent_id;
         $model->save();
+
 
         $logs= new Log();
         $logs->table_name='Category';
