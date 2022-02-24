@@ -11,9 +11,7 @@ use App\Models\User;
 use App\Models\UserRole;
 use App\Models\WarehouseRole;
 use App\Models\WarehouseTransaction;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -118,6 +116,7 @@ function storeReport($request)
     {
 
         $to_date=Carbon::parse($request->to_date)->addHours(24)->subMicrosecond(1);
+
     }
     elseif(!$request->has('to_date')||$request->to_date==null)
     {
@@ -331,4 +330,17 @@ function GenerateDropdownLog($datas) {
 
     return $tree;
 }
+
+function isUserRole()
+{
+    $role=UserRole::where(['user_id'=>Auth::id()])->first();
+    if($role->role_id==2)
+    {
+        return $role->warehouse_id;
+    }
+    else
+    {
+        return 0;
+    }
+    }
 

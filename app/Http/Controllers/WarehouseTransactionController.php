@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 
 class WarehouseTransactionController extends Controller
@@ -19,6 +20,8 @@ class WarehouseTransactionController extends Controller
     }
     public function index(Request $request)
     {
+        $store_id=isUserRole();
+        $admin=isAdmin(Auth::id());
         $transactionQuery = Db::table('warehouses_transactions as wht')
             ->select('wht.id as id',
                 'products.name as product_name',
@@ -40,36 +43,40 @@ class WarehouseTransactionController extends Controller
             ->leftJoin('warehouses as fr_wh','wht.from_wh_id','=','fr_wh.id')
             ->orderByDesc('id');
 
-        if($request->has('product_name'))
+            if ($request->has('product_name')) {
+                $transactionQuery->where('products.name', 'like', '%' . $request->get('product_name') . '%');
+            }
+            if ($request->has('quantity')) {
+                $transactionQuery->where('wht.quantity', 'like', '%' . $request->get('quantity') . '%');
+            }
+
+            if ($request->has('from_wh_name')) {
+                $transactionQuery->where('fr_wh.name', 'like', '%' . $request->get('from_wh_name') . '%');
+            }
+            if ($request->has('dest_wh_name')) {
+                $transactionQuery->where('dest_wh.name', 'like', '%' . $request->get('dest_wh_name') . '%');
+            }
+
+        if ($store_id!=0)
         {
-            $transactionQuery->where('products.name','like','%'.$request->get('product_name').'%');
-        }
-        if($request->has('quantity'))
-        {
-            $transactionQuery->where('wht.quantity','like','%'.$request->get('quantity').'%');
-        }
-        if($request->has('from_wh_name'))
-        {
-            $transactionQuery->where('fr_wh.name','like','%'.$request->get('from_wh_name').'%');
-        }
-        if($request->has('dest_wh_name'))
-        {
-            $transactionQuery->where('dest_wh.name','like','%'.$request->get('dest_wh_name').'%');
+            $transactionQuery->where(['wht.from_wh_id'=>$store_id]);
+            $transactionQuery->orWhere(['wht.destination_wh_id'=>$store_id]);
+
         }
         if($request->has('limit')&&$request->has('page')) {
             $page = $request->get('page');
             $limit = $request->get('limit');
             $offset = ($page - 1) * $limit;
             $count = count($transactionQuery->get());
-            $roles = $transactionQuery->limit($limit)->offset($offset)->get();
+            $transactions = $transactionQuery->limit($limit)->offset($offset)->get();
         }
         else{
             $count = count($transactionQuery->get());
-            $roles = $transactionQuery->get();
+            $transactions = $transactionQuery->get();
 
         }
 
-        return response()->json(['data' => $roles, 'total' => $count]);
+        return response()->json(['data' => $transactions, 'total' => $count]);
     }
     public function create(Request $request)
     {
@@ -77,6 +84,7 @@ class WarehouseTransactionController extends Controller
             'product_id'=>['required','integer'],
             'quantity'=>['required','integer'],
             'destination_wh_id'=>['required','integer'],
+            'transaction_id' => ['required','string','unique:warehouses_transactions'],
             'note'=>['string']
         ]);
 

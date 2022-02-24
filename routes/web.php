@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Artisan;
             $router->get('/category/dropdown', 'CategoryController@getCategoryDropdown');
             $router->get('/warehouse/dropdown', 'WarehouseController@dropdown');
             $router->get('/product/dropdown', 'ProductController@dropdown');
+            $router->get('/transaction', 'WarehouseTransactionController@index');
 
         });
 
@@ -38,7 +39,7 @@ use Illuminate\Support\Facades\Artisan;
             $router->get('/warehouse', 'WarehouseController@index');
             $router->get('/warehouse/{id}', 'WarehouseController@single');
             $router->delete('/warehouse/{id}', 'WarehouseController@delete');
-            $router->get('/transaction', 'WarehouseTransactionController@index');
+
             //category routes
             $router->post('/category', 'CategoryController@store');
             $router->put('/category/{id}', 'CategoryController@update');
