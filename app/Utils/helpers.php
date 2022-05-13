@@ -342,5 +342,12 @@ function isUserRole()
     {
         return 0;
     }
-    }
+}
+
+//class UserRoles {
+//    const SYSTEM_OWNER = 1;
+//    const OPERATOR = 2;
+//    const VERIFIER = 3;
+//    const OBSERVER = 4;
+//}
 

@@ -67,7 +67,7 @@ class CategoryController extends Controller
         $model= new Category();
         $model->name=$request->name;
         $model->parent_id=$request->parent_id;
-        $model->created_by=Auth::id();
+//        $model->created_by=Auth::id();
         $model->save();
 
         $logs= new Log();
